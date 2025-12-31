@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <meta name="theme-color" content="#007bff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Badminton Player Group Randomizer - Python Web</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .card {
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .card-header {
+            border-radius: 15px 15px 0 0 !important;
+            font-weight: bold;
+        }
+        .btn-primary {
+            border-radius: 25px;
+            padding: 10px 30px;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+        .skill-beginner { background-color: #28a745; }
+        .skill-intermediate { background-color: #ffc107; color: #212529; }
+        .skill-advanced { background-color: #dc3545; }
+        .form-check { margin-bottom: 0.5rem; }
+        .form-check-label { cursor: pointer; }
+        .form-check-input { transform: scale(1.2); margin-right: 0.5rem; }
+
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+            .container { padding: 10px; }
+            .card { margin: 10px 0; }
+            .card-header h1 { font-size: 1.5rem; }
+            .btn-primary { padding: 12px 20px; font-size: 1rem; width: 100%; margin-bottom: 10px; }
+            .btn-outline-secondary { padding: 8px 16px; font-size: 0.9rem; }
+            .form-check { padding: 8px; margin-bottom: 8px; }
+            .form-check-label { font-size: 1rem; padding: 5px 0; }
+            .table-responsive { font-size: 0.9rem; }
+        }
+
+        @media (max-width: 480px) {
+            .card-header h1 { font-size: 1.25rem; }
+            .btn-primary { font-size: 0.9rem; }
+            .form-check-label { font-size: 0.9rem; }
+        }
+
+        .group-card {
+            margin-bottom: 20px;
+        }
+        .team-card {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 10px;
+            margin: 5px 0;
+        }
+        .skill-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .error {
+            color: #dc3545;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header bg-primary text-white text-center">
+                        <h1 class="mb-0">🏸 Badminton Group Randomizer</h1>
+                        <small>Python Web Version</small>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info">
+                            <strong>Rules:</strong> Groups of 4 players (Beginner+Intermediate OR Intermediate+Advanced)
+                        </div>
+
+                        <div class="mb-4">
+                            <h5>Select Present Players:</h5>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <button type="button" class="btn btn-outline-secondary btn-sm w-100" onclick="selectAll()">Select All</button>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <button type="button" class="btn btn-outline-secondary btn-sm w-100" onclick="selectNone()">Select None</button>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <button type="button" class="btn btn-outline-secondary btn-sm w-100" onclick="selectBySkill('beginner')">Beginners Only</button>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <button type="button" class="btn btn-outline-secondary btn-sm w-100" onclick="selectBySkill('intermediate')">Intermediates Only</button>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <button type="button" class="btn btn-outline-secondary btn-sm w-100" onclick="selectBySkill('advanced')">Advanced Only</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <form id="playerForm">
+                            <div class="row">
+                                {% for player in players %}
+                                <div class="col-md-6 col-lg-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input skill-{{ player.get_skill_level().value.lower() }}" type="checkbox" id="player_{{ player.get_name() }}" name="players" value="{{ player.get_name() }}" checked>
+                                        <label class="form-check-label" for="player_{{ player.get_name() }}">
+                                            {{ player.get_name() }}
+                                            <span class="skill-badge skill-{{ player.get_skill_level().value.lower() }}">{{ player.get_skill_level().value[0] }}</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </form>
+
+                        <div class="text-center mt-4">
+                            <button type="button" class="btn btn-primary btn-lg" onclick="randomizeGroups()">
+                                🎲 Randomize Groups
+                            </button>
+                        </div>
+
+                        <div id="loading" class="loading">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p>Randomizing groups...</p>
+                        </div>
+
+                        <div id="error" class="error text-center mt-3" style="display: none;"></div>
+
+                        <div id="results" style="display: none;">
+                            <hr>
+                            <h4 class="text-center mb-4">🎯 Groups Formed</h4>
+                            <div id="groupsContainer" class="row"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function selectAll() {
+            const checkboxes = document.querySelectorAll('input[name="players"]');
+            checkboxes.forEach(cb => cb.checked = true);
+        }
+
+        function selectNone() {
+            const checkboxes = document.querySelectorAll('input[name="players"]');
+            checkboxes.forEach(cb => cb.checked = false);
+        }
+
+        function selectBySkill(skill) {
+            const checkboxes = document.querySelectorAll('input[name="players"]');
+            checkboxes.forEach(cb => {
+                const isChecked = cb.classList.contains(`skill-${skill}`);
+                cb.checked = isChecked;
+            });
+        }
+
+        function randomizeGroups() {
+            const selectedPlayers = Array.from(document.querySelectorAll('input[name="players"]:checked')).map(cb => cb.value);
+
+            if (selectedPlayers.length < 4) {
+                showError('Please select at least 4 players!');
+                return;
+            }
+
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('error').style.display = 'none';
+            document.getElementById('results').style.display = 'none';
+
+            fetch('/randomize', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ present_players: selectedPlayers })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('loading').style.display = 'none';
+
+                if (data.error) {
+                    showError(data.error);
+                } else {
+                    displayGroups(data.groups);
+                }
+            })
+            .catch(error => {
+                document.getElementById('loading').style.display = 'none';
+                showError('An error occurred while randomizing groups.');
+                console.error('Error:', error);
+            });
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            document.getElementById('results').style.display = 'none';
+        }
+
+        function displayGroups(groups) {
+            const container = document.getElementById('groupsContainer');
+            container.innerHTML = '';
+
+            groups.forEach(group => {
+                const groupCard = document.createElement('div');
+                groupCard.className = 'col-md-6 group-card';
+
+                let groupTitle = `Group ${group.group_number}`;
+                if (group.is_forced) {
+                    groupTitle = `Forced ${groupTitle}`;
+                }
+
+                let html = `
+                    <div class="card h-100">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0">${groupTitle}</h5>
+                        </div>
+                        <div class="card-body">
+                            <h6>Players:</h6>
+                            <ul class="list-group list-group-flush mb-3">
+                `;
+
+                group.players.forEach(player => {
+                    const skillClass = `skill-${player.skill.toLowerCase()}`;
+                    html += `
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            ${player.name}
+                            <span class="skill-badge ${skillClass}">${player.skill[0]}</span>
+                        </li>
+                    `;
+                });
+
+                html += '</ul>';
+
+                if (group.teams.length > 0) {
+                    html += '<h6>Teams:</h6>';
+                    group.teams.forEach(team => {
+                        html += `
+                            <div class="team-card">
+                                <strong>${team.name}:</strong> ${team.players.join(' & ')}
+                            </div>
+                        `;
+                    });
+                }
+
+                html += `
+                        </div>
+                    </div>
+                `;
+
+                groupCard.innerHTML = html;
+                container.appendChild(groupCard);
+            });
+
+            document.getElementById('results').style.display = 'block';
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
