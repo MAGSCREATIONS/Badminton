@@ -12,7 +12,7 @@ def main():
 
     # Beginner players (4)
     players.append(Player("Balaji", SkillLevel.BEGINNER))
-    players.append(Player("Anand", SkillLevel.BEGINNER))
+    players.append(Player("Anand(Forever in our memories)", SkillLevel.BEGINNER))
     players.append(Player("Prakash", SkillLevel.BEGINNER))
     players.append(Player("Sree", SkillLevel.BEGINNER))
 
@@ -83,4 +83,5 @@ def main():
         traceback.print_exc()
 
 if __name__ == "__main__":
+
     main()
