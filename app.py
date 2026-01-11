@@ -8,7 +8,7 @@ app = Flask(__name__)
 # Fixed list of players
 PLAYERS = [
     Player("Balaji", SkillLevel.BEGINNER),
-    Player("Anand", SkillLevel.BEGINNER),
+    Player("Anand(Forever in our memories)", SkillLevel.BEGINNER),
     Player("Prakash", SkillLevel.BEGINNER),
     Player("Sree", SkillLevel.BEGINNER),
     Player("Arun", SkillLevel.INTERMEDIATE),
@@ -77,4 +77,5 @@ def randomize():
         return jsonify({'error': str(e)})
 
 if __name__ == '__main__':
+
     app.run(debug=True, host='0.0.0.0', port=5000)
