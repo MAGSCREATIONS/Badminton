@@ -12,6 +12,8 @@ body { background-color: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verda
 .card-header { border-radius: 15px 15px 0 0; font-weight: bold; }
 .btn-primary { border-radius: 25px; padding: 10px 30px; font-weight: bold; }
 .form-check { margin-bottom: 6px; }
+.forced { border: 2px solid #fd7e14 !important; }
+.forced .card-header { background-color: #fd7e14 !important; color: #fff !important; }
 </style>
 </head>
 
@@ -164,7 +166,7 @@ function randomizeGroups() {
 
     groups.forEach((group, idx) => {
         let teamsHTML = "";
-        if(group.players.length === 4) {
+        if(group.players.length === 4){
             teamsHTML = `
                 <div class="row mt-3">
                     <div class="col-6 text-center">
@@ -178,8 +180,8 @@ function randomizeGroups() {
 
         row.innerHTML += `
             <div class="col-md-6">
-                <div class="card mb-3 ${group.forced?"border-warning":"border-primary"}">
-                    <div class="card-header ${group.forced?"bg-warning":"bg-primary text-white"} text-center">
+                <div class="card mb-3 ${group.forced?"forced":""}">
+                    <div class="card-header text-center">
                         ${group.forced?"Forced Group ":"Group "} ${idx+1}
                     </div>
                     <div class="card-body text-center">
@@ -196,11 +198,6 @@ function randomizeGroups() {
 /* ---------------- GROUP LOGIC ---------------- */
 function generateGroups(players) {
     const shuffled = shuffle([...players]);
-
-    const beginners = shuffled.filter(p=>p.skill==="BEGINNER");
-    const intermediates = shuffled.filter(p=>p.skill==="INTERMEDIATE");
-    const advanced = shuffled.filter(p=>p.skill==="ADVANCED");
-
     const groups = [];
     let remaining = [...shuffled];
 
@@ -211,10 +208,9 @@ function generateGroups(players) {
         groups.push(group);
     }
 
-    // Any leftover players (less than 4) form a forced group
     while(remaining.length>0){
         const toTake = remaining.splice(0,4);
-        const group = {players:toTake, forced:true};
+        const group = {players: toTake, forced:true};
         splitTeams(group);
         groups.push(group);
     }
