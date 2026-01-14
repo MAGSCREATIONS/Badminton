@@ -241,4 +241,46 @@ function randomizePlayers(players) {
     const advanced = shuffled.filter(p => p.skill === 'ADVANCED');
 
     const groups = [];
-    let gr
+    let groupNumber = 1;
+
+    while (true) {
+        const group = tryFormGroup(beginners, intermediates, advanced, groupNumber++);
+        if (group) groups.push(group);
+        else break;
+    }
+
+    const remaining = [...beginners, ...intermediates, ...advanced];
+    if (remaining.length) {
+        const forced = { groupNumber, players: remaining, isForced: true };
+        groups.push(forced);
+    }
+
+    groups.forEach(g => {
+        if (g.players.length === 4) splitIntoTeams(g);
+    });
+
+    return groups;
+}
+
+function tryFormGroup(b, i, a, num) {
+    if (b.length + i.length + a.length < 4) return null;
+    const group = { groupNumber: num, players: [] };
+
+    if (i.length >= 2) group.players.push(i.pop(), i.pop());
+    if (b.length) group.players.push(b.pop());
+    if (a.length && group.players.length < 4) group.players.push(a.pop());
+    if (group.players.length < 4) group.players.push(i.pop());
+
+    return group;
+}
+
+function splitIntoTeams(group) {
+    const shuffled = shuffle([...group.players]);
+    group.team1 = { players: [shuffled[0], shuffled[1]] };
+    group.team2 = { players: [shuffled[2], shuffled[3]] };
+}
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
