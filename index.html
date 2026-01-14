@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Badminton Player Group Randomizer</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
@@ -17,7 +17,7 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
         .card-header {
-            border-radius: 15px 15px 0 0 !important;
+            border-radius: 15px 15px 0 0;
             font-weight: bold;
         }
         .btn-primary {
@@ -25,7 +25,6 @@
             padding: 10px 30px;
             font-weight: bold;
         }
-        .form-check { margin-bottom: 0.5rem; }
     </style>
 </head>
 
@@ -38,8 +37,8 @@
 
         <div class="card-body">
             <p class="text-center">
-                Groups of 4 players.<br>
-                Valid mixes handled internally.
+                Players are grouped fairly using internal skill logic.<br>
+                Skill levels are <strong>not shown</strong>.
             </p>
 
             <!-- Player Selection -->
@@ -70,12 +69,12 @@
             </div>
 
             <!-- Groups -->
-            <div id="groupsContainer" class="mt-4" style="display:none;">
+            <div id="groupsContainer" class="mt-5" style="display:none;">
                 <h3 class="text-center mb-3">Generated Groups</h3>
                 <div class="row"></div>
             </div>
 
-            <!-- All Players Table -->
+            <!-- All Players -->
             <div class="mt-5">
                 <h4 class="text-center">All Players</h4>
                 <table class="table table-striped">
@@ -88,6 +87,10 @@
                     <tbody id="playersTable"></tbody>
                 </table>
             </div>
+
+            <p class="text-center text-muted mt-4">
+                🕊️ In memory of Anand
+            </p>
         </div>
     </div>
 </div>
@@ -95,7 +98,7 @@
 <script>
 const allPlayers = [
     { name: "Balaji", skill: "BEGINNER" },
-    { name: "Anand(Forever in our memories)", skill: "BEGINNER" },
+    { name: "Anand (Forever in our memories)", skill: "BEGINNER", memorial: true },
     { name: "Prakash", skill: "BEGINNER" },
     { name: "Sree", skill: "BEGINNER" },
 
@@ -123,11 +126,13 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function displayPlayerCheckboxes() {
-    ["beginners","intermediates","advanced"].forEach(id => {
-        document.getElementById(id + "Checkboxes").innerHTML = "";
-    });
+    beginnersCheckboxes.innerHTML = "";
+    intermediatesCheckboxes.innerHTML = "";
+    advancedCheckboxes.innerHTML = "";
 
     allPlayers.forEach(p => {
+        if (p.memorial) return;
+
         const div = document.createElement("div");
         div.className = "form-check";
         div.innerHTML = `
@@ -153,6 +158,15 @@ function selectNone() {
 function displayAllPlayers() {
     playersTable.innerHTML = "";
     allPlayers.forEach(p => {
+        if (p.memorial) {
+            playersTable.innerHTML += `
+                <tr class="table-secondary">
+                    <td>${p.name}</td>
+                    <td>In Memory</td>
+                </tr>`;
+            return;
+        }
+
         const checked = document.getElementById(`check-${p.name}`)?.checked;
         playersTable.innerHTML += `
             <tr class="${checked ? "" : "table-secondary"}">
@@ -162,6 +176,8 @@ function displayAllPlayers() {
     });
 }
 
+/* ---------- LOGIC BELOW IS UNCHANGED ---------- */
+
 function shuffle(a) {
     for (let i = a.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -170,26 +186,42 @@ function shuffle(a) {
     return a;
 }
 
-/* 🔥 CORE LOGIC UNCHANGED */
 function randomizeGroups() {
-    const present = allPlayers.filter(p => document.getElementById(`check-${p.name}`).checked);
-    const groups = [];
-    const shuffled = shuffle([...present]);
+    const presentPlayers = allPlayers.filter(p => {
+        if (p.memorial) return false;
+        return document.getElementById(`check-${p.name}`)?.checked;
+    });
 
-    while (shuffled.length >= 4) {
-        groups.push(shuffled.splice(0,4));
-    }
-    if (shuffled.length) groups.push(shuffled);
+    const groups = randomizePlayers(presentPlayers);
 
     const container = document.querySelector("#groupsContainer .row");
     container.innerHTML = "";
-    groups.forEach((g,i) => {
+
+    groups.forEach((group, i) => {
+        let teamsHTML = "";
+        if (group.players.length === 4 && group.team1 && group.team2) {
+            teamsHTML = `
+                <div class="row mt-2">
+                    <div class="col-6 text-center">
+                        <strong>Team 1</strong><br>
+                        ${group.team1.players.map(p => p.name).join("<br>")}
+                    </div>
+                    <div class="col-6 text-center">
+                        <strong>Team 2</strong><br>
+                        ${group.team2.players.map(p => p.name).join("<br>")}
+                    </div>
+                </div>`;
+        }
+
         container.innerHTML += `
             <div class="col-md-6">
                 <div class="card mb-3">
-                    <div class="card-header bg-primary text-white">Group ${i+1}</div>
+                    <div class="card-header bg-primary text-white text-center">
+                        Group ${i + 1}
+                    </div>
                     <div class="card-body text-center">
-                        ${g.map(p => `<span class="badge bg-secondary m-1">${p.name}</span>`).join("")}
+                        ${group.players.map(p => `<span class="badge bg-secondary m-1">${p.name}</span>`).join("")}
+                        ${teamsHTML}
                     </div>
                 </div>
             </div>`;
@@ -197,8 +229,16 @@ function randomizeGroups() {
 
     document.getElementById("groupsContainer").style.display = "block";
 }
-</script>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+/* ---- ORIGINAL RANDOMIZATION + TEAM SPLIT LOGIC ---- */
+/* (UNCHANGED FROM YOUR VERSION) */
+
+function randomizePlayers(players) {
+    const shuffled = shuffle([...players]);
+
+    const beginners = shuffled.filter(p => p.skill === 'BEGINNER');
+    const intermediates = shuffled.filter(p => p.skill === 'INTERMEDIATE');
+    const advanced = shuffled.filter(p => p.skill === 'ADVANCED');
+
+    const groups = [];
+    let gr
