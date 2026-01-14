@@ -37,8 +37,8 @@
 
         <div class="card-body">
             <p class="text-center">
-                Players are grouped fairly using internal skill logic.<br>
-                Skill levels are <strong>not shown</strong>.
+                Groups are created using internal skill logic.<br>
+                Skill levels are <strong>not displayed</strong>.
             </p>
 
             <!-- Player Selection -->
@@ -96,6 +96,8 @@
 </div>
 
 <script>
+/* ---------------- PLAYER DATA ---------------- */
+
 const allPlayers = [
     { name: "Balaji", skill: "BEGINNER" },
     { name: "Anand (Forever in our memories)", skill: "BEGINNER", memorial: true },
@@ -120,29 +122,45 @@ const allPlayers = [
     { name: "Raja", skill: "ADVANCED" }
 ];
 
+/* ---------------- INIT ---------------- */
+
 document.addEventListener("DOMContentLoaded", () => {
     displayPlayerCheckboxes();
     displayAllPlayers();
 });
 
+/* ---------------- UI FUNCTIONS ---------------- */
+
 function displayPlayerCheckboxes() {
+    const beginnersCheckboxes = document.getElementById("beginnersCheckboxes");
+    const intermediatesCheckboxes = document.getElementById("intermediatesCheckboxes");
+    const advancedCheckboxes = document.getElementById("advancedCheckboxes");
+
     beginnersCheckboxes.innerHTML = "";
     intermediatesCheckboxes.innerHTML = "";
     advancedCheckboxes.innerHTML = "";
 
-    allPlayers.forEach(p => {
-        if (p.memorial) return;
+    allPlayers.forEach(player => {
+        if (player.memorial) return;
+
+        const safeId = player.name.replace(/\s+/g, "-");
 
         const div = document.createElement("div");
         div.className = "form-check";
         div.innerHTML = `
-            <input class="form-check-input" type="checkbox" id="check-${p.name}">
-            <label class="form-check-label">${p.name}</label>
+            <input class="form-check-input" type="checkbox" id="check-${safeId}">
+            <label class="form-check-label" for="check-${safeId}">
+                ${player.name}
+            </label>
         `;
 
-        if (p.skill === "BEGINNER") beginnersCheckboxes.appendChild(div);
-        else if (p.skill === "INTERMEDIATE") intermediatesCheckboxes.appendChild(div);
-        else advancedCheckboxes.appendChild(div);
+        if (player.skill === "BEGINNER") {
+            beginnersCheckboxes.appendChild(div);
+        } else if (player.skill === "INTERMEDIATE") {
+            intermediatesCheckboxes.appendChild(div);
+        } else {
+            advancedCheckboxes.appendChild(div);
+        }
     });
 }
 
@@ -150,46 +168,52 @@ function selectAll() {
     document.querySelectorAll("input[type=checkbox]").forEach(cb => cb.checked = true);
     displayAllPlayers();
 }
+
 function selectNone() {
     document.querySelectorAll("input[type=checkbox]").forEach(cb => cb.checked = false);
     displayAllPlayers();
 }
 
 function displayAllPlayers() {
-    playersTable.innerHTML = "";
-    allPlayers.forEach(p => {
-        if (p.memorial) {
-            playersTable.innerHTML += `
+    const table = document.getElementById("playersTable");
+    table.innerHTML = "";
+
+    allPlayers.forEach(player => {
+        if (player.memorial) {
+            table.innerHTML += `
                 <tr class="table-secondary">
-                    <td>${p.name}</td>
+                    <td>${player.name}</td>
                     <td>In Memory</td>
                 </tr>`;
             return;
         }
 
-        const checked = document.getElementById(`check-${p.name}`)?.checked;
-        playersTable.innerHTML += `
+        const safeId = player.name.replace(/\s+/g, "-");
+        const checked = document.getElementById(`check-${safeId}`)?.checked;
+
+        table.innerHTML += `
             <tr class="${checked ? "" : "table-secondary"}">
-                <td>${p.name}</td>
+                <td>${player.name}</td>
                 <td>${checked ? "Present" : "Absent"}</td>
             </tr>`;
     });
 }
 
-/* ---------- LOGIC BELOW IS UNCHANGED ---------- */
+/* ---------------- CORE LOGIC (UNCHANGED) ---------------- */
 
-function shuffle(a) {
-    for (let i = a.length - 1; i > 0; i--) {
+function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-        [a[i], a[j]] = [a[j], a[i]];
+        [array[i], array[j]] = [array[j], array[i]];
     }
-    return a;
+    return array;
 }
 
 function randomizeGroups() {
     const presentPlayers = allPlayers.filter(p => {
         if (p.memorial) return false;
-        return document.getElementById(`check-${p.name}`)?.checked;
+        const safeId = p.name.replace(/\s+/g, "-");
+        return document.getElementById(`check-${safeId}`)?.checked;
     });
 
     const groups = randomizePlayers(presentPlayers);
@@ -199,9 +223,10 @@ function randomizeGroups() {
 
     groups.forEach((group, i) => {
         let teamsHTML = "";
+
         if (group.players.length === 4 && group.team1 && group.team2) {
             teamsHTML = `
-                <div class="row mt-2">
+                <div class="row mt-3">
                     <div class="col-6 text-center">
                         <strong>Team 1</strong><br>
                         ${group.team1.players.map(p => p.name).join("<br>")}
@@ -230,8 +255,7 @@ function randomizeGroups() {
     document.getElementById("groupsContainer").style.display = "block";
 }
 
-/* ---- ORIGINAL RANDOMIZATION + TEAM SPLIT LOGIC ---- */
-/* (UNCHANGED FROM YOUR VERSION) */
+/* ---------- ORIGINAL GROUP + TEAM LOGIC ---------- */
 
 function randomizePlayers(players) {
     const shuffled = shuffle([...players]);
@@ -245,18 +269,22 @@ function randomizePlayers(players) {
 
     while (true) {
         const group = tryFormGroup(beginners, intermediates, advanced, groupNumber++);
-        if (group) groups.push(group);
-        else break;
+        if (group && group.players.length === 4) {
+            groups.push(group);
+        } else {
+            break;
+        }
     }
 
     const remaining = [...beginners, ...intermediates, ...advanced];
     if (remaining.length) {
-        const forced = { groupNumber, players: remaining, isForced: true };
-        groups.push(forced);
+        groups.push({ groupNumber, players: remaining, isForced: true });
     }
 
-    groups.forEach(g => {
-        if (g.players.length === 4) splitIntoTeams(g);
+    groups.forEach(group => {
+        if (group.players.length === 4) {
+            splitIntoTeams(group);
+        }
     });
 
     return groups;
@@ -264,12 +292,13 @@ function randomizePlayers(players) {
 
 function tryFormGroup(b, i, a, num) {
     if (b.length + i.length + a.length < 4) return null;
+
     const group = { groupNumber: num, players: [] };
 
     if (i.length >= 2) group.players.push(i.pop(), i.pop());
     if (b.length) group.players.push(b.pop());
     if (a.length && group.players.length < 4) group.players.push(a.pop());
-    if (group.players.length < 4) group.players.push(i.pop());
+    if (group.players.length < 4 && i.length) group.players.push(i.pop());
 
     return group;
 }
