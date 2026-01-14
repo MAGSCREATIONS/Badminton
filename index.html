@@ -36,12 +36,8 @@
         </div>
 
         <div class="card-body">
-            <p class="text-center">
-                Groups are created using internal skill logic.<br>
-                Skill levels are <strong>not displayed</strong>.
-            </p>
 
-            <!-- Player Selection (NO SKILL LABELS) -->
+            <!-- Player Selection -->
             <div class="row">
                 <div class="col-md-4">
                     <div id="beginnersCheckboxes"></div>
@@ -196,7 +192,7 @@ function displayAllPlayers() {
     });
 }
 
-/* ---------------- CORE LOGIC (UNCHANGED) ---------------- */
+/* ---------------- CORE LOGIC (UNCHANGED & SILENT) ---------------- */
 
 function shuffle(array) {
     for (let i = array.length - 1; i > 0; i--) {
@@ -251,6 +247,8 @@ function randomizeGroups() {
 
     document.getElementById("groupsContainer").style.display = "block";
 }
+
+/* ---------- ORIGINAL GROUP + TEAM LOGIC ---------- */
 
 function randomizePlayers(players) {
     const shuffled = shuffle([...players]);
