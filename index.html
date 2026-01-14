@@ -41,18 +41,15 @@
                 Skill levels are <strong>not displayed</strong>.
             </p>
 
-            <!-- Player Selection -->
+            <!-- Player Selection (NO SKILL LABELS) -->
             <div class="row">
                 <div class="col-md-4">
-                    <h5 class="text-center">Beginners</h5>
                     <div id="beginnersCheckboxes"></div>
                 </div>
                 <div class="col-md-4">
-                    <h5 class="text-center">Intermediates</h5>
                     <div id="intermediatesCheckboxes"></div>
                 </div>
                 <div class="col-md-4">
-                    <h5 class="text-center">Advanced</h5>
                     <div id="advancedCheckboxes"></div>
                 </div>
             </div>
@@ -254,8 +251,6 @@ function randomizeGroups() {
 
     document.getElementById("groupsContainer").style.display = "block";
 }
-
-/* ---------- ORIGINAL GROUP + TEAM LOGIC ---------- */
 
 function randomizePlayers(players) {
     const shuffled = shuffle([...players]);
