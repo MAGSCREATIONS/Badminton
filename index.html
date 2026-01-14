@@ -25,6 +25,9 @@
             padding: 10px 30px;
             font-weight: bold;
         }
+        .form-check {
+            margin-bottom: 6px;
+        }
     </style>
 </head>
 
@@ -38,20 +41,16 @@
         <div class="card-body">
 
             <!-- Player Selection -->
+            <h4 class="text-center mb-3">Select Present Players</h4>
+
             <div class="row">
-                <div class="col-md-4">
-                    <div id="beginnersCheckboxes"></div>
-                </div>
-                <div class="col-md-4">
-                    <div id="intermediatesCheckboxes"></div>
-                </div>
-                <div class="col-md-4">
-                    <div id="advancedCheckboxes"></div>
-                </div>
+                <div class="col-md-4" id="beginnersCheckboxes"></div>
+                <div class="col-md-4" id="intermediatesCheckboxes"></div>
+                <div class="col-md-4" id="advancedCheckboxes"></div>
             </div>
 
             <div class="text-center mt-3">
-                <button onclick="selectAll()" class="btn btn-outline-secondary btn-sm">Select All</button>
+                <button onclick="selectAll()" class="btn btn-outline-secondary btn-sm me-2">Select All</button>
                 <button onclick="selectNone()" class="btn btn-outline-secondary btn-sm">Select None</button>
             </div>
 
@@ -67,9 +66,9 @@
                 <div class="row"></div>
             </div>
 
-            <!-- All Players -->
+            <!-- Attendance Table -->
             <div class="mt-5">
-                <h4 class="text-center">All Players</h4>
+                <h4 class="text-center">Attendance</h4>
                 <table class="table table-striped">
                     <thead class="table-dark">
                         <tr>
@@ -81,9 +80,6 @@
                 </table>
             </div>
 
-            <p class="text-center text-muted mt-4">
-                🕊️ In memory of Anand
-            </p>
         </div>
     </div>
 </div>
@@ -93,7 +89,6 @@
 
 const allPlayers = [
     { name: "Balaji", skill: "BEGINNER" },
-    { name: "Anand (Forever in our memories)", skill: "BEGINNER", memorial: true },
     { name: "Prakash", skill: "BEGINNER" },
     { name: "Sree", skill: "BEGINNER" },
 
@@ -103,10 +98,12 @@ const allPlayers = [
     { name: "Kirshnamurthy", skill: "INTERMEDIATE" },
     { name: "Joseph", skill: "INTERMEDIATE" },
     { name: "Hashim", skill: "INTERMEDIATE" },
-    { name: "Santhosh", skill: "INTERMEDIATE" },
     { name: "Sudha", skill: "INTERMEDIATE" },
     { name: "Suren", skill: "INTERMEDIATE" },
     { name: "Kripa", skill: "INTERMEDIATE" },
+
+    /* Santhosh MOVED to ADVANCED */
+    { name: "Santhosh", skill: "ADVANCED" },
 
     { name: "Charles", skill: "ADVANCED" },
     { name: "Faizee", skill: "ADVANCED" },
@@ -119,105 +116,94 @@ const allPlayers = [
 
 document.addEventListener("DOMContentLoaded", () => {
     displayPlayerCheckboxes();
-    displayAllPlayers();
+    updateAttendanceTable();
 });
 
-/* ---------------- UI FUNCTIONS ---------------- */
+/* ---------------- UI ---------------- */
 
 function displayPlayerCheckboxes() {
-    const beginnersCheckboxes = document.getElementById("beginnersCheckboxes");
-    const intermediatesCheckboxes = document.getElementById("intermediatesCheckboxes");
-    const advancedCheckboxes = document.getElementById("advancedCheckboxes");
+    const b = document.getElementById("beginnersCheckboxes");
+    const i = document.getElementById("intermediatesCheckboxes");
+    const a = document.getElementById("advancedCheckboxes");
 
-    beginnersCheckboxes.innerHTML = "";
-    intermediatesCheckboxes.innerHTML = "";
-    advancedCheckboxes.innerHTML = "";
+    b.innerHTML = i.innerHTML = a.innerHTML = "";
 
     allPlayers.forEach(player => {
-        if (player.memorial) return;
-
-        const safeId = player.name.replace(/\s+/g, "-");
+        const id = player.name.replace(/\s+/g, "-");
 
         const div = document.createElement("div");
         div.className = "form-check";
         div.innerHTML = `
-            <input class="form-check-input" type="checkbox" id="check-${safeId}">
-            <label class="form-check-label" for="check-${safeId}">
+            <input class="form-check-input" type="checkbox" id="check-${id}" onchange="updateAttendanceTable()">
+            <label class="form-check-label" for="check-${id}">
                 ${player.name}
             </label>
         `;
 
-        if (player.skill === "BEGINNER") {
-            beginnersCheckboxes.appendChild(div);
-        } else if (player.skill === "INTERMEDIATE") {
-            intermediatesCheckboxes.appendChild(div);
-        } else {
-            advancedCheckboxes.appendChild(div);
-        }
+        if (player.skill === "BEGINNER") b.appendChild(div);
+        else if (player.skill === "INTERMEDIATE") i.appendChild(div);
+        else a.appendChild(div);
     });
 }
 
 function selectAll() {
     document.querySelectorAll("input[type=checkbox]").forEach(cb => cb.checked = true);
-    displayAllPlayers();
+    updateAttendanceTable();
 }
 
 function selectNone() {
     document.querySelectorAll("input[type=checkbox]").forEach(cb => cb.checked = false);
-    displayAllPlayers();
+    updateAttendanceTable();
 }
 
-function displayAllPlayers() {
+/* ---------------- ATTENDANCE ---------------- */
+
+function updateAttendanceTable() {
     const table = document.getElementById("playersTable");
     table.innerHTML = "";
 
     allPlayers.forEach(player => {
-        if (player.memorial) {
-            table.innerHTML += `
-                <tr class="table-secondary">
-                    <td>${player.name}</td>
-                    <td>In Memory</td>
-                </tr>`;
-            return;
-        }
-
-        const safeId = player.name.replace(/\s+/g, "-");
-        const checked = document.getElementById(`check-${safeId}`)?.checked;
+        const id = player.name.replace(/\s+/g, "-");
+        const present = document.getElementById(`check-${id}`)?.checked;
 
         table.innerHTML += `
-            <tr class="${checked ? "" : "table-secondary"}">
+            <tr class="${present ? "" : "table-secondary"}">
                 <td>${player.name}</td>
-                <td>${checked ? "Present" : "Absent"}</td>
-            </tr>`;
+                <td>
+                    <span class="badge ${present ? 'bg-success' : 'bg-secondary'}">
+                        ${present ? "Present" : "Absent"}
+                    </span>
+                </td>
+            </tr>
+        `;
     });
 }
 
-/* ---------------- CORE LOGIC (UNCHANGED & SILENT) ---------------- */
+/* ---------------- RANDOMIZATION ---------------- */
 
-function shuffle(array) {
-    for (let i = array.length - 1; i > 0; i--) {
+function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
+        [arr[i], arr[j]] = [arr[j], arr[i]];
     }
-    return array;
+    return arr;
 }
 
 function randomizeGroups() {
     const presentPlayers = allPlayers.filter(p => {
-        if (p.memorial) return false;
-        const safeId = p.name.replace(/\s+/g, "-");
-        return document.getElementById(`check-${safeId}`)?.checked;
+        const id = p.name.replace(/\s+/g, "-");
+        return document.getElementById(`check-${id}`)?.checked;
     });
 
     const groups = randomizePlayers(presentPlayers);
 
-    const container = document.querySelector("#groupsContainer .row");
-    container.innerHTML = "";
+    const row = document.querySelector("#groupsContainer .row");
+    row.innerHTML = "";
 
-    groups.forEach((group, i) => {
+    groups.forEach((group, idx) => {
         let teamsHTML = "";
 
-        if (group.players.length === 4 && group.team1 && group.team2) {
+        if (group.players.length === 4) {
             teamsHTML = `
                 <div class="row mt-3">
                     <div class="col-6 text-center">
@@ -231,11 +217,11 @@ function randomizeGroups() {
                 </div>`;
         }
 
-        container.innerHTML += `
+        row.innerHTML += `
             <div class="col-md-6">
                 <div class="card mb-3">
                     <div class="card-header bg-primary text-white text-center">
-                        Group ${i + 1}
+                        Group ${idx + 1}
                     </div>
                     <div class="card-body text-center">
                         ${group.players.map(p => `<span class="badge bg-secondary m-1">${p.name}</span>`).join("")}
@@ -248,58 +234,37 @@ function randomizeGroups() {
     document.getElementById("groupsContainer").style.display = "block";
 }
 
-/* ---------- ORIGINAL GROUP + TEAM LOGIC ---------- */
+/* ---------------- CORE LOGIC (SILENT) ---------------- */
 
 function randomizePlayers(players) {
     const shuffled = shuffle([...players]);
 
-    const beginners = shuffled.filter(p => p.skill === 'BEGINNER');
-    const intermediates = shuffled.filter(p => p.skill === 'INTERMEDIATE');
-    const advanced = shuffled.filter(p => p.skill === 'ADVANCED');
+    const b = shuffled.filter(p => p.skill === "BEGINNER");
+    const i = shuffled.filter(p => p.skill === "INTERMEDIATE");
+    const a = shuffled.filter(p => p.skill === "ADVANCED");
 
     const groups = [];
-    let groupNumber = 1;
 
-    while (true) {
-        const group = tryFormGroup(beginners, intermediates, advanced, groupNumber++);
-        if (group && group.players.length === 4) {
-            groups.push(group);
-        } else {
-            break;
-        }
+    while (b.length + i.length + a.length >= 4) {
+        const groupPlayers = [];
+
+        if (i.length >= 2) groupPlayers.push(i.pop(), i.pop());
+        if (b.length) groupPlayers.push(b.pop());
+        if (a.length && groupPlayers.length < 4) groupPlayers.push(a.pop());
+        if (groupPlayers.length < 4 && i.length) groupPlayers.push(i.pop());
+
+        const group = { players: groupPlayers };
+        splitIntoTeams(group);
+        groups.push(group);
     }
-
-    const remaining = [...beginners, ...intermediates, ...advanced];
-    if (remaining.length) {
-        groups.push({ groupNumber, players: remaining, isForced: true });
-    }
-
-    groups.forEach(group => {
-        if (group.players.length === 4) {
-            splitIntoTeams(group);
-        }
-    });
 
     return groups;
 }
 
-function tryFormGroup(b, i, a, num) {
-    if (b.length + i.length + a.length < 4) return null;
-
-    const group = { groupNumber: num, players: [] };
-
-    if (i.length >= 2) group.players.push(i.pop(), i.pop());
-    if (b.length) group.players.push(b.pop());
-    if (a.length && group.players.length < 4) group.players.push(a.pop());
-    if (group.players.length < 4 && i.length) group.players.push(i.pop());
-
-    return group;
-}
-
 function splitIntoTeams(group) {
-    const shuffled = shuffle([...group.players]);
-    group.team1 = { players: [shuffled[0], shuffled[1]] };
-    group.team2 = { players: [shuffled[2], shuffled[3]] };
+    const s = shuffle([...group.players]);
+    group.team1 = { players: [s[0], s[1]] };
+    group.team2 = { players: [s[2], s[3]] };
 }
 </script>
 
