@@ -1,34 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Badminton Player Group Randomizer</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Badminton Player Group Randomizer</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <style>
-        body {
-            background-color: #f8f9fa;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        .card {
-            border-radius: 15px;
-            border: none;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        .card-header {
-            border-radius: 15px 15px 0 0;
-            font-weight: bold;
-        }
-        .btn-primary {
-            border-radius: 25px;
-            padding: 10px 30px;
-            font-weight: bold;
-        }
-        .form-check {
-            margin-bottom: 6px;
-        }
-    </style>
+<style>
+body { background-color: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+.card { border-radius: 15px; border: none; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+.card-header { border-radius: 15px 15px 0 0; font-weight: bold; }
+.btn-primary { border-radius: 25px; padding: 10px 30px; font-weight: bold; }
+.form-check { margin-bottom: 6px; }
+</style>
 </head>
 
 <body>
@@ -37,12 +21,10 @@
         <div class="card-header bg-primary text-white text-center">
             <h1>🏓 Badminton Player Group Randomizer</h1>
         </div>
-
         <div class="card-body">
 
             <!-- Player Selection -->
             <h4 class="text-center mb-3">Select Present Players</h4>
-
             <div class="row">
                 <div class="col-md-4" id="beginnersCheckboxes"></div>
                 <div class="col-md-4" id="intermediatesCheckboxes"></div>
@@ -55,9 +37,7 @@
             </div>
 
             <div class="text-center mt-4">
-                <button onclick="randomizeGroups()" class="btn btn-primary btn-lg w-100">
-                    🎲 Randomize Groups
-                </button>
+                <button onclick="randomizeGroups()" class="btn btn-primary btn-lg w-100">🎲 Randomize Groups</button>
             </div>
 
             <!-- Groups -->
@@ -68,8 +48,7 @@
 
             <!-- Attendance Table -->
             <div class="mt-5">
-                <h4 class="text-center">Attendance & Skill Notification</h4>
-                <p class="text-center text-info">Santosh has been moved from Intermediate → Advanced</p>
+                <h4 class="text-center">Attendance</h4>
                 <table class="table table-striped">
                     <thead class="table-dark">
                         <tr>
@@ -87,25 +66,20 @@
 
 <script>
 /* ---------------- PLAYER DATA ---------------- */
-
 const allPlayers = [
     { name: "Balaji", skill: "BEGINNER" },
     { name: "Prakash", skill: "BEGINNER" },
     { name: "Sree", skill: "BEGINNER" },
-
     { name: "Arun", skill: "INTERMEDIATE" },
     { name: "Dileep", skill: "INTERMEDIATE" },
     { name: "Bheesh", skill: "INTERMEDIATE" },
-    { name: "Kirshnamurthy", skill: "INTERMEDIATE" },
+    { name: "Krishnamurthy", skill: "INTERMEDIATE" },
     { name: "Joseph", skill: "INTERMEDIATE" },
     { name: "Hashim", skill: "INTERMEDIATE" },
     { name: "Sudha", skill: "INTERMEDIATE" },
     { name: "Suren", skill: "INTERMEDIATE" },
     { name: "Kripa", skill: "INTERMEDIATE" },
-
-    /* Santhosh MOVED to ADVANCED */
     { name: "Santhosh", skill: "ADVANCED" },
-
     { name: "Charles", skill: "ADVANCED" },
     { name: "Faizee", skill: "ADVANCED" },
     { name: "Raaju", skill: "ADVANCED" },
@@ -114,35 +88,28 @@ const allPlayers = [
 ];
 
 /* ---------------- INIT ---------------- */
-
 document.addEventListener("DOMContentLoaded", () => {
     displayPlayerCheckboxes();
     updateAttendanceTable();
 });
 
 /* ---------------- UI ---------------- */
-
 function displayPlayerCheckboxes() {
     const b = document.getElementById("beginnersCheckboxes");
     const i = document.getElementById("intermediatesCheckboxes");
     const a = document.getElementById("advancedCheckboxes");
-
     b.innerHTML = i.innerHTML = a.innerHTML = "";
 
     allPlayers.forEach(player => {
         const id = player.name.replace(/\s+/g, "-");
-
         const div = document.createElement("div");
         div.className = "form-check";
         div.innerHTML = `
             <input class="form-check-input" type="checkbox" id="check-${id}" onchange="updateAttendanceTable()">
-            <label class="form-check-label" for="check-${id}">
-                ${player.name}
-            </label>
+            <label class="form-check-label" for="check-${id}">${player.name}</label>
         `;
-
-        if (player.skill === "BEGINNER") b.appendChild(div);
-        else if (player.skill === "INTERMEDIATE") i.appendChild(div);
+        if(player.skill === "BEGINNER") b.appendChild(div);
+        else if(player.skill === "INTERMEDIATE") i.appendChild(div);
         else a.appendChild(div);
     });
 }
@@ -158,22 +125,17 @@ function selectNone() {
 }
 
 /* ---------------- ATTENDANCE ---------------- */
-
 function updateAttendanceTable() {
     const table = document.getElementById("playersTable");
     table.innerHTML = "";
-
     allPlayers.forEach(player => {
         const id = player.name.replace(/\s+/g, "-");
         const present = document.getElementById(`check-${id}`)?.checked;
-
         table.innerHTML += `
             <tr class="${present ? "" : "table-secondary"}">
                 <td>${player.name}</td>
-                <td>
-                    <span class="badge ${present ? 'bg-success' : 'bg-secondary'}">
-                        ${present ? "Present" : "Absent"}
-                    </span>
+                <td><span class="badge ${present ? 'bg-success' : 'bg-secondary'}">
+                    ${present ? "Present" : "Absent"}</span>
                 </td>
             </tr>
         `;
@@ -181,51 +143,47 @@ function updateAttendanceTable() {
 }
 
 /* ---------------- RANDOMIZATION ---------------- */
-
 function shuffle(arr) {
-    for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
+    for(let i=arr.length-1;i>0;i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [arr[i],arr[j]]=[arr[j],arr[i]];
     }
     return arr;
 }
 
 function randomizeGroups() {
     const presentPlayers = allPlayers.filter(p => {
-        const id = p.name.replace(/\s+/g, "-");
+        const id = p.name.replace(/\s+/g,"-");
         return document.getElementById(`check-${id}`)?.checked;
     });
 
-    const groups = randomizePlayers(presentPlayers);
+    const groups = generateGroups(presentPlayers);
 
     const row = document.querySelector("#groupsContainer .row");
     row.innerHTML = "";
 
     groups.forEach((group, idx) => {
         let teamsHTML = "";
-
-        if (group.players.length === 4) {
+        if(group.players.length === 4) {
             teamsHTML = `
                 <div class="row mt-3">
                     <div class="col-6 text-center">
-                        <strong>Team 1</strong><br>
-                        ${group.team1.players.map(p => p.name).join("<br>")}
+                        <strong>Team 1</strong><br>${group.team1.players.map(p=>p.name).join("<br>")}
                     </div>
                     <div class="col-6 text-center">
-                        <strong>Team 2</strong><br>
-                        ${group.team2.players.map(p => p.name).join("<br>")}
+                        <strong>Team 2</strong><br>${group.team2.players.map(p=>p.name).join("<br>")}
                     </div>
                 </div>`;
         }
 
         row.innerHTML += `
             <div class="col-md-6">
-                <div class="card mb-3">
-                    <div class="card-header bg-primary text-white text-center">
-                        Group ${idx + 1}
+                <div class="card mb-3 ${group.forced?"border-warning":"border-primary"}">
+                    <div class="card-header ${group.forced?"bg-warning":"bg-primary text-white"} text-center">
+                        ${group.forced?"Forced Group ":"Group "} ${idx+1}
                     </div>
                     <div class="card-body text-center">
-                        ${group.players.map(p => `<span class="badge bg-secondary m-1">${p.name}</span>`).join("")}
+                        ${group.players.map(p=>`<span class="badge bg-secondary m-1">${p.name}</span>`).join("")}
                         ${teamsHTML}
                     </div>
                 </div>
@@ -235,37 +193,39 @@ function randomizeGroups() {
     document.getElementById("groupsContainer").style.display = "block";
 }
 
-/* ---------------- CORE LOGIC (SILENT) ---------------- */
-
-function randomizePlayers(players) {
+/* ---------------- GROUP LOGIC ---------------- */
+function generateGroups(players) {
     const shuffled = shuffle([...players]);
 
-    const b = shuffled.filter(p => p.skill === "BEGINNER");
-    const i = shuffled.filter(p => p.skill === "INTERMEDIATE");
-    const a = shuffled.filter(p => p.skill === "ADVANCED");
+    const beginners = shuffled.filter(p=>p.skill==="BEGINNER");
+    const intermediates = shuffled.filter(p=>p.skill==="INTERMEDIATE");
+    const advanced = shuffled.filter(p=>p.skill==="ADVANCED");
 
     const groups = [];
+    let remaining = [...shuffled];
 
-    while (b.length + i.length + a.length >= 4) {
-        const groupPlayers = [];
+    while(remaining.length>=4){
+        const groupPlayers = remaining.splice(0,4);
+        const group = {players: groupPlayers, forced:false};
+        splitTeams(group);
+        groups.push(group);
+    }
 
-        if (i.length >= 2) groupPlayers.push(i.pop(), i.pop());
-        if (b.length) groupPlayers.push(b.pop());
-        if (a.length && groupPlayers.length < 4) groupPlayers.push(a.pop());
-        if (groupPlayers.length < 4 && i.length) groupPlayers.push(i.pop());
-
-        const group = { players: groupPlayers };
-        splitIntoTeams(group);
+    // Any leftover players (less than 4) form a forced group
+    while(remaining.length>0){
+        const toTake = remaining.splice(0,4);
+        const group = {players:toTake, forced:true};
+        splitTeams(group);
         groups.push(group);
     }
 
     return groups;
 }
 
-function splitIntoTeams(group) {
-    const s = shuffle([...group.players]);
-    group.team1 = { players: [s[0], s[1]] };
-    group.team2 = { players: [s[2], s[3]] };
+function splitTeams(group){
+    const shuffled = shuffle([...group.players]);
+    group.team1 = {players: shuffled.slice(0,2)};
+    group.team2 = {players: shuffled.slice(2,4)};
 }
 </script>
 
